@@ -3,7 +3,205 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+/*
+ * Brand palette: barber-pole red and deep navy on warm off-white.
+ * Colours are CSS variables so light and dark mode swap in one place and
+ * every utility (bg-surface, text-muted, border-line...) follows.
+ */
+:root {
+    --page: #f5f3ef;
+    --surface: #ffffff;
+    --ink: #1b1f2a;
+    --muted: #5d6472;
+    --line: #e2ded6;
+    --accent: #b42318;
+    --accent-ink: #ffffff;
+    --navy: #1d3557;
+    --soft: #f9e9e7;
+    --good: #1f7a4d;
+    --warn: #9a6700;
+    color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+        --page: #111318;
+        --surface: #1a1d24;
+        --ink: #eef0f4;
+        --muted: #a3aab6;
+        --line: #2c313b;
+        --accent: #ef5a4c;
+        --accent-ink: #1a0d0b;
+        --navy: #8fb3e6;
+        --soft: #2a1b1a;
+        --good: #5fc28f;
+        --warn: #e3b341;
+        color-scheme: dark;
+    }
+}
+
+:root[data-theme='dark'] {
+    --page: #111318;
+    --surface: #1a1d24;
+    --ink: #eef0f4;
+    --muted: #a3aab6;
+    --line: #2c313b;
+    --accent: #ef5a4c;
+    --accent-ink: #1a0d0b;
+    --navy: #8fb3e6;
+    --soft: #2a1b1a;
+    --good: #5fc28f;
+    --warn: #e3b341;
+    color-scheme: dark;
+}
+
+@theme inline {
+    --font-sans: 'Figtree', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+    --font-display: 'Oswald', 'Arial Narrow', Arial, sans-serif;
+
+    --color-page: var(--page);
+    --color-surface: var(--surface);
+    --color-ink: var(--ink);
+    --color-muted: var(--muted);
+    --color-line: var(--line);
+    --color-accent: var(--accent);
+    --color-accent-ink: var(--accent-ink);
+    --color-navy: var(--navy);
+    --color-soft: var(--soft);
+    --color-good: var(--good);
+    --color-warn: var(--warn);
+}
+
+@layer base {
+    html,
+    body {
+        overflow-x: hidden;
+    }
+
+    body {
+        @apply bg-page font-sans text-base leading-normal text-ink;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    h1,
+    h2,
+    h3 {
+        @apply font-display font-semibold tracking-wide text-balance uppercase;
+    }
+
+    h2 {
+        @apply text-2xl;
+    }
+
+    h3 {
+        @apply text-lg;
+    }
+
+    :focus-visible {
+        outline: 3px solid var(--navy);
+        outline-offset: 2px;
+    }
+
+    button:not(:disabled),
+    label:has(input[type='radio']),
+    label:has(input[type='checkbox']) {
+        cursor: pointer;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            transition: none !important;
+            animation: none !important;
+        }
+    }
+}
+
+/* The few patterns repeated on every page. Everything else is utilities in the templates. */
+@layer components {
+    .wrap {
+        @apply mx-auto w-full max-w-[1120px] px-4;
+    }
+
+    .card {
+        @apply min-w-0 rounded-[14px] border border-line bg-surface p-[18px];
+    }
+
+    .lead {
+        @apply mt-1.5 mb-5 max-w-[65ch] text-muted;
+    }
+
+    .btn {
+        @apply inline-flex items-center justify-center rounded-[10px] bg-accent px-4 py-3 font-bold text-accent-ink disabled:cursor-not-allowed disabled:opacity-45;
+    }
+
+    .btn-ghost {
+        @apply border border-line bg-transparent text-ink;
+    }
+
+    .btn-small {
+        @apply rounded-lg px-2.5 py-1.5 text-sm;
+    }
+
+    .chip {
+        @apply rounded-full border border-line bg-page px-3 py-1.5 text-sm font-semibold aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-page;
+    }
+
+    .field {
+        @apply grid gap-1 text-sm font-semibold;
+    }
+
+    .field input,
+    .field textarea,
+    .input {
+        @apply w-full rounded-lg border border-line bg-page px-3 py-2.5 text-base font-normal text-ink placeholder:text-muted/70;
+    }
+
+    .field-error {
+        @apply text-sm font-normal text-accent;
+    }
+
+    .option {
+        @apply grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-[10px] border border-line bg-page px-3 py-2.5 has-checked:border-accent has-checked:bg-soft;
+    }
+
+    .option input {
+        @apply size-[18px] accent-accent;
+    }
+
+    .tag {
+        @apply rounded-full border border-line bg-surface px-2 py-0.5 text-xs text-muted;
+    }
+
+    .badge {
+        @apply ml-1.5 rounded bg-accent px-1.5 py-px align-middle text-[0.7rem] font-bold text-accent-ink;
+    }
+
+    .summary-list {
+        @apply my-3 grid grid-cols-[1fr_auto] gap-x-3 gap-y-1.5;
+    }
+
+    .summary-list dt {
+        @apply text-muted;
+    }
+
+    .summary-list dd {
+        @apply text-right tabular-nums;
+    }
+
+    .total {
+        @apply mt-1.5 flex items-baseline justify-between border-t-2 border-ink pt-2.5;
+    }
+
+    .total b {
+        @apply font-display text-3xl tabular-nums;
+    }
+
+    .pole {
+        @apply h-10 w-3.5 shrink-0 rounded-[7px] border-2 border-ink;
+        background: repeating-linear-gradient(135deg, var(--accent) 0 6px, #fff 6px 12px, var(--navy) 12px 18px, #fff 18px 24px);
+    }
 }
