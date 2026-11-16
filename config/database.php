@@ -38,10 +38,12 @@ return [
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
-            'busy_timeout' => null,
+            'busy_timeout' => 5000,
             'journal_mode' => null,
             'synchronous' => null,
-            'transaction_mode' => 'DEFERRED',
+            // Take the write lock when a transaction starts, so two bookings
+            // can never both read the diary before either one writes to it.
+            'transaction_mode' => 'IMMEDIATE',
         ],
 
         'mysql' => [
