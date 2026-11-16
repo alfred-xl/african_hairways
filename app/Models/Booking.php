@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\UtcDateTime;
 use App\Enums\BookingSource;
 use App\Enums\BookingStatus;
 use Carbon\CarbonImmutable;
@@ -45,8 +46,8 @@ class Booking extends Model
     protected function casts(): array
     {
         return [
-            'starts_at' => 'immutable_datetime',
-            'ends_at' => 'immutable_datetime',
+            'starts_at' => UtcDateTime::class,
+            'ends_at' => UtcDateTime::class,
             'duration_minutes' => 'integer',
             'status' => BookingStatus::class,
             'source' => BookingSource::class,
@@ -54,8 +55,8 @@ class Booking extends Model
             'discount_pence' => 'integer',
             'total_pence' => 'integer',
             'pay_staff_directly' => 'boolean',
-            'completed_at' => 'immutable_datetime',
-            'cancelled_at' => 'immutable_datetime',
+            'completed_at' => UtcDateTime::class,
+            'cancelled_at' => UtcDateTime::class,
         ];
     }
 

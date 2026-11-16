@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\UtcDateTime;
 use App\Enums\BlockedTimeType;
 use Carbon\CarbonInterface;
 use Database\Factories\BlockedTimeFactory;
@@ -25,8 +26,8 @@ class BlockedTime extends Model
     {
         return [
             'type' => BlockedTimeType::class,
-            'starts_at' => 'immutable_datetime',
-            'ends_at' => 'immutable_datetime',
+            'starts_at' => UtcDateTime::class,
+            'ends_at' => UtcDateTime::class,
         ];
     }
 

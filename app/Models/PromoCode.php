@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\UtcDateTime;
 use App\Enums\BookingStatus;
 use App\Enums\PromoCodeType;
 use Database\Factories\PromoCodeFactory;
@@ -33,8 +34,8 @@ class PromoCode extends Model
             'valid_weekdays' => 'array',
             'max_redemptions' => 'integer',
             'max_redemptions_per_customer' => 'integer',
-            'starts_at' => 'immutable_datetime',
-            'expires_at' => 'immutable_datetime',
+            'starts_at' => UtcDateTime::class,
+            'expires_at' => UtcDateTime::class,
             'is_active' => 'boolean',
             'show_on_offers_page' => 'boolean',
         ];

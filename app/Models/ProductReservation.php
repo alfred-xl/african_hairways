@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\UtcDateTime;
 use App\Enums\ReservationStatus;
 use Database\Factories\ProductReservationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -32,7 +33,7 @@ class ProductReservation extends Model
             'status' => ReservationStatus::class,
             'total_pence' => 'integer',
             'collect_by' => 'immutable_date',
-            'collected_at' => 'immutable_datetime',
+            'collected_at' => UtcDateTime::class,
         ];
     }
 
