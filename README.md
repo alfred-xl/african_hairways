@@ -1,58 +1,91 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# African Hairways booking
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Online booking, price list, click-and-collect shop and staff back office for African Hairways
+(part of Touch2finish Services Ltd, London).
 
-## About Laravel
+Built with Laravel 13, Livewire 4, Filament 5, Tailwind 4 and Pest.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Getting started
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+npm install
+cp .env.example .env        # skip if you already have a .env
+php artisan key:generate    # skip if APP_KEY is already set
+php artisan migrate --seed
+npm run build
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Then open:
 
-## Contributing
+- <http://localhost:8000> for the customer site (booking, prices, shop, offers)
+- <http://localhost:8000/admin> for the staff back office
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+`composer run dev` runs the server, queue worker, log viewer and Vite together while you are developing.
 
-## Code of Conduct
+### Database
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+`.env.example` uses SQLite, which needs no setup. To use MySQL or MariaDB instead, set
+`DB_CONNECTION=mysql` and the `DB_*` values in `.env`, create the database, then run
+`php artisan migrate --seed`. The test suite passes on both.
 
-## Security Vulnerabilities
+### Seeded logins
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+The seeder creates two logins for local use. **Change or delete them before going live.**
 
-## License
+| Role  | Email                        | Password   | Can do |
+|-------|------------------------------|------------|--------|
+| Owner | `owner@africanhairways.test` | `password` | Everything |
+| Staff | `dami@africanhairways.test`  | `password` | Diary, blocked time, product reservations |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The seeder also loads the staff, services, prices, products, opening hours and promo codes
+from the original prototype, so the site is usable straight away. It is safe to run again:
+it updates those records rather than duplicating them.
+
+## What is where
+
+| Area | Location |
+|------|----------|
+| Booking rules (availability, pricing, promo codes, creating bookings) | `app/Services` |
+| Customer pages | `app/Livewire`, `app/Http/Controllers`, `resources/views` |
+| Staff back office | `app/Filament` |
+| Shop details that rarely change (timezone, parent company) | `config/shop.php` |
+| Everything the owner can change (hours, prices, discounts, booking window) | The back office, under "Shop setup" |
+| Colours and fonts | `resources/css/app.css` |
+
+## How the rules are enforced
+
+All of these are decided on the server; the browser only ever sends ids, a date, a time and the
+customer's own details.
+
+- **No double bookings.** `BookingService::create()` locks the staff member's row inside a database
+  transaction, re-checks the time, then saves. Two people confirming the same time are handled one
+  after the other, and the second is refused. On SQLite, transactions take the write lock up front
+  (`transaction_mode` in `config/database.php`) to give the same guarantee.
+- **Available times** come from the shop's opening hours, the staff member's working pattern,
+  blocked time, existing bookings, the length of the service plus extras, the slot step, the booking
+  window and the minimum notice. See `AvailabilityService`.
+- **Prices and discounts** are worked out from the database by `PricingService`. Money is stored
+  as whole pence.
+- **Discounts**, in order: kids' midweek amount off (Tuesday to Thursday), then either 20% off
+  every second completed visit or a promo code, never both.
+- **Visit history stays private.** The second-visit discount and first-visit-only checks run only
+  when a booking is confirmed, so typing someone's mobile number shows nothing about them.
+- **Customer details** (names, numbers, notes) are only shown inside the signed-in back office and
+  on a booking's own private link.
+- **Times** are stored in UTC and shown in Europe/London.
+
+## Tests
+
+```bash
+php artisan test
+```
+
+## Before going live
+
+- Replace the seeded logins and set real shop details under "Shop setup > Shop settings".
+- Set `APP_ENV=production`, `APP_DEBUG=false` and `APP_URL` in `.env`.
+- Configure a real mail service (`MAIL_*`). Confirmation emails are written to
+  `storage/logs/laravel.log` until then.
+- Serve the site over HTTPS: booking links are private and should never travel unencrypted.
