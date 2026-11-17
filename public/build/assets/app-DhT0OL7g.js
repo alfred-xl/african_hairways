@@ -1,0 +1,1 @@
+window.toggleTheme=()=>{let e=document.documentElement,t=e.dataset.theme?e.dataset.theme===`dark`:window.matchMedia(`(prefers-color-scheme: dark)`).matches;e.dataset.theme=t?`light`:`dark`;try{localStorage.setItem(`theme`,e.dataset.theme)}catch{}};
