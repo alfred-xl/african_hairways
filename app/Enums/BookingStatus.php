@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum BookingStatus: string
+use Filament\Support\Contracts\HasLabel;
+
+enum BookingStatus: string implements HasLabel
 {
     case Booked = 'booked';
     case Completed = 'completed';
@@ -27,5 +29,13 @@ enum BookingStatus: string
     public static function occupyingTime(): array
     {
         return [self::Booked, self::Completed];
+    }
+
+    /**
+     * The label Filament shows for this case in selects, tables and badges.
+     */
+    public function getLabel(): string
+    {
+        return $this->label();
     }
 }

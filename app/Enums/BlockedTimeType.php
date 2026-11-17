@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum BlockedTimeType: string
+use Filament\Support\Contracts\HasLabel;
+
+enum BlockedTimeType: string implements HasLabel
 {
     case Lunch = 'lunch';
     case Holiday = 'holiday';
@@ -19,5 +21,13 @@ enum BlockedTimeType: string
             self::Closure => 'Shop closure',
             self::Other => 'Other',
         };
+    }
+
+    /**
+     * The label Filament shows for this case in selects, tables and badges.
+     */
+    public function getLabel(): string
+    {
+        return $this->label();
     }
 }

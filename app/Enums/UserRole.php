@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum UserRole: string
+use Filament\Support\Contracts\HasLabel;
+
+enum UserRole: string implements HasLabel
 {
     case Owner = 'owner';
     case Staff = 'staff';
@@ -13,5 +15,13 @@ enum UserRole: string
             self::Owner => 'Owner',
             self::Staff => 'Staff',
         };
+    }
+
+    /**
+     * The label Filament shows for this case in selects, tables and badges.
+     */
+    public function getLabel(): string
+    {
+        return $this->label();
     }
 }

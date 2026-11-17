@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum PromoCodeType: string
+use Filament\Support\Contracts\HasLabel;
+
+enum PromoCodeType: string implements HasLabel
 {
     case Percent = 'percent';
     case Fixed = 'fixed';
@@ -13,5 +15,13 @@ enum PromoCodeType: string
             self::Percent => 'Percentage off',
             self::Fixed => 'Fixed amount off',
         };
+    }
+
+    /**
+     * The label Filament shows for this case in selects, tables and badges.
+     */
+    public function getLabel(): string
+    {
+        return $this->label();
     }
 }

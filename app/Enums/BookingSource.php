@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum BookingSource: string
+use Filament\Support\Contracts\HasLabel;
+
+enum BookingSource: string implements HasLabel
 {
     case Online = 'online';
     case WalkIn = 'walk_in';
@@ -15,5 +17,13 @@ enum BookingSource: string
             self::WalkIn => 'Walk-in',
             self::Phone => 'Phone',
         };
+    }
+
+    /**
+     * The label Filament shows for this case in selects, tables and badges.
+     */
+    public function getLabel(): string
+    {
+        return $this->label();
     }
 }

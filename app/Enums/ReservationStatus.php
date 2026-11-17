@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum ReservationStatus: string
+use Filament\Support\Contracts\HasLabel;
+
+enum ReservationStatus: string implements HasLabel
 {
     case Reserved = 'reserved';
     case Collected = 'collected';
@@ -15,5 +17,13 @@ enum ReservationStatus: string
             self::Collected => 'Collected',
             self::Cancelled => 'Cancelled',
         };
+    }
+
+    /**
+     * The label Filament shows for this case in selects, tables and badges.
+     */
+    public function getLabel(): string
+    {
+        return $this->label();
     }
 }
